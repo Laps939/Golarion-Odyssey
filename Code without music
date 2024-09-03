@@ -1,0 +1,751 @@
+import random
+import pygame
+import time
+
+
+#def print_letter_by_letter(text, delay=0.02): feel too slow specially if multitime
+#for char in text:
+#print(char, end='', flush=True)
+#time.sleep(delay)
+
+
+# Initialize pygame mixer
+#pygame.mixer.init()
+
+# Load music tracks
+#character_creation_music = pygame.mixer.Sound("284_Oasis_City.mp3")
+#town_music = pygame.mixer.Sound("407_Viking_Tavern.mp3")
+#inn_music = pygame.mixer.Sound("255_The_Hearth_Inn.mp3")
+#shop_music = pygame.mixer.Sound("80_Blacksmith_Shoppe.mp3")
+#map_music = pygame.mixer.Sound("324_Distilled_Highlands.mp3")
+#background_music = pygame.mixer.Sound("397_Homecoming.mp3")
+#forest_music = pygame.mixer.Sound("223_Salt_Marsh.mp3")
+#caves_music = pygame.mixer.Sound("400_Whispering_Caverns.mp3")
+#ruins_music = pygame.mixer.Sound("406_Treacherous_Path.mp3")
+#mountain_pass_music = pygame.mixer.Sound("388_Lord_of_Bones.mp3")
+
+
+#def play_music(state):
+#    try:
+#        pygame.mixer.stop()
+
+#        if state == "character_creation":
+#            character_creation_music.play(-1)  # Loop indefinitely
+#        elif state == "town":
+#            town_music.play(-1)
+#        elif state == "inn":
+#            inn_music.play(-1)
+#        elif state == "shop":
+#            shop_music.play(-1)
+#        elif state == "map":
+#            map_music.play(-1)
+#       elif state == "forest":
+#           forest_music.play(-1)
+#        elif state == "caves":
+#            caves_music.play(-1)
+#        elif state == "ruins":
+#            ruins_music.play(-1)
+#        elif state == "mountain pass":
+#            mountain_pass_music.play(-1)
+#        else:
+#            print("Unknown state. Cannot play music.")
+
+#    except pygame.error as e:
+#        print(f"Error playing music: {e}")
+
+
+class Player:
+    def __init__(self, name, character_class_id, race, level, hit_points=0, max_hit_points=0, mp=0, max_mp=0, stamina=0,
+                 max_stamina=0, weapon=None, armor=None, gold=0, items=[], experience=0):
+        self.name = name
+        self.character_class_id = character_class_id
+        self.race = race
+        self.level = level
+        self.hit_points = hit_points
+        self.max_hit_points = max_hit_points
+        self.mp = mp
+        self.max_mp = max_mp
+        self.stamina = stamina
+        self.max_stamina = max_stamina
+        self.weapon = weapon
+        self.armor = armor
+        self.gold = gold
+        self.items = items
+        self.experience = experience
+
+    def take_damage(self, damage):
+        self.hit_points -= damage
+        if self.hit_points <= 0:
+            print(f"{self.name} has been defeated!")
+        else:
+            print(f"{self.name} takes {damage} damage and has {self.hit_points} health remaining.")
+
+    def level_up(self):
+        level_threshold = 20
+        if self.experience >= level_threshold:
+            self.level += 1
+            self.experience -= level_threshold
+            self.level_threshold = + 15
+
+            if self.character_class_id in [2, 4, 5]:
+                self.max_hit_points += 15
+                self.max_hit_points = self.max_hit_points
+                self.max_mp += 10
+                self.max_mp = self.max_mp
+                print(f"{self.name} leveled up to level {self.level} and gained 15 HP and 10 MP!")
+
+            elif self.character_class_id in [1, 3]:
+                self.max_hit_points += 20
+                self.max_hit_points = self.max_hit_points
+                self.max_stamina += 10
+                self.max_stamina = self.max_stamina
+                print(f"{self.name} leveled up to level {self.level} and gained 20 HP and 10 stamina!")
+
+            if self.character_class_id in [2, 4, 5]:
+                print(f"{self.name}'s HP: {self.hit_points} | MP: {self.mp}")
+            else:
+                print(f"{self.name}'s HP: {self.hit_points} | Stamina {self.stamina}")
+
+
+class Enemy:
+    def __init__(self, name, hit_points, damage, damage_range, gold_reward, exp_reward, special_attack_name=None, special_attack_range=None):
+        self.name = name
+        self.hit_points = hit_points
+        self.damage = damage
+        self.damage_range = damage_range
+        self.gold_reward = gold_reward
+        self.exp_reward = exp_reward
+        self.is_alive = True
+        self.special_attack_name = special_attack_name
+        self.special_attack_range = special_attack_range
+
+        # self.attack_pattern = ["Claw Attack", "Tail Spin", "Breath Attack", "Slam Attack", "Wings Attack"]
+
+    def take_damage(self, damage):
+        self.hit_points -= damage
+        if self.hit_points <= 0:
+            self.is_alive = False
+            print(f"{self.name} has been defeated!")
+        else:
+            print(f"{self.name} takes {damage} damage and has {self.hit_points} health remaining.")
+
+    def special_attack(self, target):
+        if self.is_alive:
+            if self.special_attack_name and self.special_attack_range:
+                damage = random.randint(self.special_attack_range[0], self.special_attack_range[1])
+                print(f"{self.name} uses {self.special_attack_name} for {damage} damage!")
+                target.take_damage(damage)
+            else:
+                print(f"{self.name} has no special attack.")
+
+
+# def dragon_special_attack(dragon, player):
+# print(f"{dragon.name} prepares to unleash a devastating special attack!")
+# attack_choice = random.choice(dragon.attack_pattern)
+
+# if attack_choice == "Fire Breath":
+# fire_breath_damage = random.randint(30, 40)
+# print(f"{dragon.name} unleashes a scorching Fire Breath!")
+# player.take_damage(fire_breath_damage)
+# elif attack_choice == "Claw Swipe":
+# claw_swipe_damage = random.randint(25, 35)
+# print(f"{dragon.name} performs a powerful Claw Swipe!")
+# player.take_damage(claw_swipe_damage)
+# elif attack_choice == "Tail Whip":
+# tail_whip_damage = random.randint(20, 30)
+# print(f"{dragon.name} executes a vicious Tail Whip!")
+# player.take_damage(tail_whip_damage)
+
+
+def special_attack_stamina(player, enemy):
+    if player.character_class_id == 1:
+        fighter_special_attack(player, enemy)
+    elif player.character_class_id == 3:
+        rogue_special_attack(player, enemy)
+    else:
+        print("This class does not have a stamina-based special attack.")
+
+
+def special_attack_mp(player, enemy):
+    if player.character_class_id == 2:  # Wizard
+        wizard_special_attack(player, enemy)
+    elif player.character_class_id == 4:  # Cleric
+        cleric_special_attack(player, enemy)
+    elif player.character_class_id == 5:  # Paladin
+        paladin_special_attack(player, enemy)
+    else:
+        print("This class does not have an MP-based special attack.")
+
+
+def fighter_special_attack(player, enemy):
+    if player.character_class_id == 1:
+        if player.stamina >= 20:
+            player.stamina -= 20
+            total_damage = random.randint(25, 35)
+            print(f"{player.name} performs a Whirlwind Slash, dealing {total_damage} damage!")
+            apply_damage(enemy, total_damage)
+        else:
+            print("Not enough stamina to perform the Whirlwind Slash")
+
+
+def rogue_special_attack(player, enemy):
+    if player.character_class_id == 3:
+        if player.stamina >= 15:
+            player.stamina -= 15
+            crit_chance = random.randint(1, 10)
+            if crit_chance > 7:
+                total_damage = random.randint(30, 40) * 2
+                print(
+                    f"{player.name} performs a Shadowstep Backstab, landing a critical hit for {total_damage} damage!")
+            else:
+                total_damage = random.randint(30, 40)
+                print(f"{player.name} performs a Shadowstep Backstab, dealing {total_damage} damage!")
+            apply_damage(enemy, total_damage)
+    else:
+        print("Not enough stamina to perform the Shadowsetp Backstab")
+
+
+def wizard_special_attack(player, enemy):
+    if player.character_class_id == 2:
+        print("Choose your special attack:")
+        print("1. Fireball")
+        print("2. Ice Lance")
+        print("3. Arcane Barrier")
+        attack_choice = input("Enter your choice: ")
+
+        if attack_choice == '1':
+            fireball_damage = random.randint(15, 20)
+            if player.mp >= 25:
+                print(f"{player.name} casts a blazing Fireball!")
+                enemy.hit_points -= fireball_damage
+                player.mp -= 25
+                print(f"{player.name} deals {fireball_damage} damage to {enemy.name}.")
+            else:
+                print("Not enough MP to cast Fireball!")
+        elif attack_choice == '2':
+            frost_nova_duration = 2
+            if player.mp >= 26:
+                ice_lance_damage = random.randint(18, 25)
+                if player.mp >= 26:
+                    print(f"{player.name} hurls a sharp Ice Lance!")
+                    enemy.hit_points -= ice_lance_damage
+                    player.mp -= 26
+                    print(f"{player.name} deals {ice_lance_damage} damage to {enemy.name}.")
+                else:
+                    print("Not enough mp to cast Ice Lance!")
+
+        elif attack_choice == '3':
+            arcane_barrier_defense = 5
+            barrier_duration = 5
+
+            if player.mp >= 15:
+                print(f"{player.name} creates an Arcane Barrier for defense!")
+                player_defense_boost = arcane_barrier_defense
+                print(f"{player.name} gains {arcane_barrier_defense} defense for {barrier_duration} turns.")
+
+                for _ in range(barrier_duration):
+                    player_defense = pathfinder_classes[player.character_class_id]["defense"]
+                    if isinstance(player.armor, dict) and "defense" in player.armor:
+                        player_defense += player.armor["defense"]
+                    player_defense += player_defense_boost
+
+                    # Allow the player to take actions during the barrier's duration
+                    player_action = input("Choose your action:\n"
+                                          "1. Attack\n"
+                                          "2. Special Attack\n"
+                                          "3. Inventory\n"
+                                          "Enter your choice: ")
+
+                    if player_action == '1':
+                        attack(player, enemy, player_defense)  # Attack function with updated defense
+                    elif player_action == '2':
+                        print("You perform a special attack!")
+                    elif player_action == '3':
+                        print_inventory(player)
+                    else:
+                        print("Invalid input! Try again.")
+
+                    print(f"{player.name}'s defense returns to normal after {barrier_duration} turns.")
+                player.mp -= 15
+            else:
+                print("Not enough MP to cast Arcane Barrier!")
+        else:
+            print("Invalid choice! Try again.")
+            wizard_special_attack(player, enemy)
+
+
+def cleric_special_attack(player, enemy):
+    if player.character_class_id == 4:
+        print("Choose your spell:")
+        print("1. healing Light")
+        print("2. Divine Smite")
+        print("3. Blessing of Protection")
+        spell_choice = input("Enter your choice: ")
+
+        if spell_choice == '1':
+            healing_amount = random.randint(15, 20)
+            if player.mp >= 10:
+                player.mp -= 10
+                target = player in input("Do you want to heal yourself? (yes/no): ").lower() == 'yes'
+                target.hit_points += healing_amount
+                print(f"{player.name} casts Healing Light and restores {target.name}'s health by {healing_amount}.")
+            else:
+                print("Not enough MP to cast Healing Light!")
+
+
+def paladin_special_attack(player, enemy):
+    if player.character_class_id == 5:
+        print("Choose your spell")
+        print("1. Smite")
+        print("2. Cure Wounds")
+        attack_choice = input("Enter your choice: ")
+
+        if attack_choice == '1':
+            Smite_damage = random.randint(12, 18)
+            if player.mp >= 15:
+                player.mp -= 15
+                print(f"{player.name} deals {Smite_damage} holy damage to {enemy.name}")
+            else:
+                print("Not enough MP to cast Smite")
+
+        elif attack_choice == '2':
+            heal_amount = random.randint(10, 15)
+        if player.mp >= 10:
+            player.mp -= 10
+            player.hit_points += heal_amount  # Add the healing effect to the player's hit points
+            print(f"{player.name} casts Cure Wounds and restores {heal_amount} health.")
+        else:
+            print("Not enough MP to cast Cure Wounds!")
+
+
+# def special_attack_mp(player, enemy):
+
+
+weapons = {
+    1: {"name": "Short Sword", "dice": (1, 6), "cost": 10},
+    2: {"name": "Battleaxe", "dice": (1, 8), "cost": 15},
+    3: {"name": "Falchion", "dice": (2, 4), "cost": 1},
+    4: {"name": "Dwarven Waraxe", "dice": (1, 10), "cost": 5},
+    5: {"name": "Greatsword", "dice": (2, 6), "cost": 20},
+    6: {"name": "Enchanted Staff", "dice": (1, 8), "cost": 25},
+    7: {"name": "Composite Bow", "dice": (1, 10), "cost": 30},
+    8: {"name": "Silver Dagger", "dice": (3, 4), "cost": 28},
+    9: {"name": "Hammer of Thunder", "dice": (1, 12), "cost": 35},
+    10: {"name": "Poisoned Blade", "dice": (1, 6), "cost": 18},  # poison damage dmg not a thing !yet!
+}
+
+armor_types = {
+    1: {"name": "Light Armor", "defense": 2, "cost": 10},
+    2: {"name": "Medium Armor", "defense": 4, "cost": 15},
+    3: {"name": "Heavy Armor", "defense": 6, "cost": 20},
+    4: {"name": "Legendary Armor", "defense": 8, "cost": 25},
+    5: {"name": "Dragonhide Armor", "defense": 10, "cost": 30},
+    6: {"name": "Arcane Robes", "defense": 6, "cost": 20},
+    7: {"name": "shawdow cloak", "defense": 9, "cost": 28}
+}
+
+pathfinder_classes = {
+    1: {"name": "Fighter", "damage_dice": (1, 8), "defense": 4, "starting_weapon": 2, "starting_armor": 2},
+    2: {"name": "Wizard", "damage_dice": (1, 4), "defense": 2, "starting_weapon": 6, "starting_armor": 1},
+    3: {"name": "Rogue", "damage_dice": (1, 6), "defense": 3, "starting_weapon": 1, "starting_armor": 2},
+    4: {"name": "Cleric", "damage_dice": (1, 4), "defense": 3, "starting_weapon": 3, "starting_armor": 1},
+    5: {"name": "Paladin", "damage_dice": (1, 6), "defense": 5, "starting_weapon": 4, "starting_armor": 3}
+}
+available_races = [
+    "Human",
+    "Elf",
+    "Dwarf",
+    "Halfling",
+    "Orc",
+    "Gnome",
+    "Half-Elf",
+    "Half-Orc"
+]
+
+
+def battle(player, enemy):
+    print(f"A wild {enemy.name} appears!")
+    while player.hit_points > 0 and enemy.hit_points > 0:
+        print("Choose youre action:")
+        print("1. Attack")
+        if player.character_class_id in [1, 3]:
+            print("2. Special attack")
+        elif player.character_class_id in [2, 4, 5]:
+            print("2. Magic")
+            print("3. Inventory")
+            print("4. Run")
+        player_action = input("Enter your choice: ")
+
+        if player_action.lower() == '1':
+            attack(player, enemy)
+
+        elif player_action == '2':
+            if player.character_class_id in [1, 3]:
+                special_attack_stamina(player, enemy)
+            elif player.character_class_id in [2, 4, 5]:
+                special_attack_mp(player, enemy)
+        elif player_action == '3':
+            print_inventory(player)
+        elif player_action == '4':
+            print("You run away from the battle!")
+            return False
+        else:
+            print("Invalid input! Try again.")
+            continue
+
+        if enemy.hit_points > 0:
+            enemy.special_attack(player)
+
+            #if enemy.hit_points > 0:         let on to give proper dragon attack
+            #if enemy.name == "Dragon":
+            #dragon_special_attack(enemy, player)
+        else:
+            attack(enemy, player)
+
+        if player.hit_points <= 0:
+            print("Game over! You were defeated.")
+            return False
+        elif enemy.hit_points <= 0:
+            gold_reward = enemy.gold_reward
+            player.gold += gold_reward
+            player.experience += enemy.exp_reward
+            print(f"You defeated the {enemy.name} and gained {gold_reward} gold!")
+            print(f"Current experience: {player.experience}")
+            player.level_up()  # Check if the player leveled up
+            return True
+
+
+def attack(attacker, target):
+    if isinstance(attacker, Player):
+        if attacker.weapon and "dice" in attacker.weapon:
+            num_dice, dice_faces = attacker.weapon["dice"]
+            damage_dealt = []
+            for _ in range(num_dice):
+                roll = random.randint(1, dice_faces)
+                damage_dealt.append(roll)
+
+            class_id = attacker.character_class_id
+            damage_dice = pathfinder_classes[class_id]["damage_dice"]  # Access damage_dice from class
+            class_damage_bonus = random.randint(1, damage_dice[1])  # Random bonus from 1 to the maximum dice face
+            total_damage = sum(damage_dealt) + class_damage_bonus
+            total_damage = max(0, total_damage)
+            print(f"{attacker.name} rolls {damage_dealt} ({class_damage_bonus} class bonus) "
+                  f"against {target.name} for {total_damage} damage!")
+
+            apply_damage(target, total_damage)
+        else:
+            print(f"{attacker.name} doesn't have a weapon to attack!")
+
+
+    elif isinstance(attacker, Enemy):
+        if attacker.is_alive:
+            random_value = random.random()  # Generate a random value between 0 and 1
+            if random_value < 0.1:
+                damage_roll = random.randint(attacker.damage_range[0], attacker.damage_range[1])
+                print(f"{attacker.name} attacks {target.name} for {damage_roll} damage!")
+                target.take_damage(damage_roll)  # Assuming take_damage is defined elsewhere
+            else:
+                attacker.special_attack(target)  # Assuming special_attack is defined in the Enemy class
+
+
+def apply_damage(target, damage):
+    if isinstance(target, Player):
+        target.hit_points -= damage
+        print(f"{target.name} takes {damage} damage from the attack!")
+        print(f"{target.name}'s health: {target.hit_points}")
+        if target.hit_points <= 0:
+            print(f"{target.name} has been defeated!")
+    elif isinstance(target, Enemy):
+        target.hit_points -= damage
+        print(f"{target.name} takes {damage} damage from the attack!")
+        print(f"{target.name}'s health: {target.hit_points}")
+        if target.hit_points <= 0:
+            print(f"{target.name} has been defeated!")
+
+
+def inn_rest(player):
+    #play_music("inn")
+    player.hit_points = player.max_hit_points
+
+    if player.character_class_id in [2, 4, 5]:
+        player.mp = 30
+    else:
+        player.mp = 0
+
+    if player.character_class_id in [1, 3]:
+        player.stamina = 30
+
+    print(
+        f"{player.name} steps into the welcoming warmth of the inn, the aroma of freshly baked bread and hearty stews filling the air.\n"
+        f"After finding a cozy corner, {player.name} settles in and rests, feeling rejuvenated.\n"
+        f"Their health is restored to {player.hit_points}, and their MP is fully recovered.")
+
+
+def town_gameplay(player):
+    #play_music("town")
+    print(f"Welcome to town, {player.name}!")
+    while True:
+        choice = input("What would you like to do?\n"
+                       "1. Adventure\n"
+                       "2. Visit Shop\n"
+                       "3. Rest at Inn\n"
+                       "Enter your choice (1-3): ")
+        if choice == '1':
+            adventure_gameplay(player)
+        elif choice == '2':
+            visit_shop(player)
+        elif choice == '3':
+            inn_rest(player)
+        else:
+            print("Invalid choice. Please enter a number from 1 to 3.")
+
+
+def visit_shop(player):
+    #play_music("shop")
+    print(f"Welcome to the shop, {player.name}!\n"
+          f"You step into a bustling marketplace filled with the chatter of merchants\n"
+          f"and the enticing aroma of exotic spices. Shelves lined with weapons and armor\n"
+          f"glimmer under the warm glow of lanterns, inviting you to explore their wares.\n\n"
+          f"What would you like to do?\n")
+
+    while True:
+        print("1. Buy Weapon")
+        print("2. Buy Armor")
+        print("3. View Inventory")
+        print("4. Leave Shop")
+        choice = input("Enter your choice: ")
+
+        if choice == '1':
+            print("Available weapons:")
+            for weapon, data in weapons.items():
+                print(
+                    f"{weapon}: {data['name']} | Damage +{data['dice'][0]}d{data['dice'][1]} | Cost: {data['cost']} gold")
+            weapon_choice = input("Enter the weapon number you want to buy: ")
+            try:
+                weapon_choice = int(weapon_choice)
+                if weapon_choice in weapons and player.gold >= weapons[weapon_choice]['cost']:
+                    # Deduct the cost from player's gold
+                    player.gold -= weapons[weapon_choice]['cost']
+                    # Update the player's weapon
+                    player.weapon = weapons[weapon_choice]
+                    print(f"You bought the {weapons[weapon_choice]['name']}.")
+                else:
+                    print("Invalid choice or not enough gold!")
+            except ValueError:
+                print("Invalid input! Please enter a valid weapon number.")
+        elif choice == '2':
+            print("Available armor types:")
+            for armor_type, data in armor_types.items():
+                print(f"{armor_type}: {data['name']} | Defense: {data['defense']} | Cost: {data['cost']} gold")
+            armor_choice = input("Enter the armor type you want to buy: ")
+            if armor_choice in armor_types and player.gold >= armor_types[armor_choice]['cost']:
+                # Deduct the cost from player's gold
+                player.gold -= armor_types[armor_choice]['cost']
+                # Update the player's armor
+                player.armor = armor_types[armor_choice]
+                print(f"You bought {armor_types[armor_choice]['name']}.")
+            else:
+                print("Invalid choice or not enough gold!")
+        elif choice == '3':
+            print_inventory(player)
+        elif choice == '4':
+            print("Thanks for visiting the shop!\n"
+                  "You step out of the bustling marketplace, carrying your new purchases\n"
+                  "and feeling ready for the adventures that lie ahead.\n")
+            break
+        else:
+            print("Invalid choice! Try again.")
+
+
+def print_inventory(player):
+    print(f"Inventory for {player.name}:")
+    print(f"Gold: {player.gold}")
+    print("Items:")
+    for item in player.items:
+        print(item)
+
+
+def adventure_gameplay(player):
+    normal_monsters = [
+        Enemy("Goblin", random.randint(10, 15), random.randint(2, 4), (2, 4), 10, 10, "Goblin Kick", (10, 15)),
+        Enemy("Skeleton", random.randint(11, 16), random.randint(3, 5), (3, 5), 13, 15, "Bone Throw", (10, 18)),
+        Enemy("Orc", random.randint(15, 20), random.randint(4, 6), (4, 6), 20, 18, "War Stomp", (20, 25)),
+        Enemy("Bandit", random.randint(10, 15), random.randint(3, 5), (3, 5), 12, 13, "Backstab", (15, 20)),
+        Enemy("Imp", random.randint(5, 20), random.randint(3, 6), (3, 6), 13, 14, "Fire Ball", (20, 30))
+    ]
+    medium_monsters = [
+        Enemy("Witch", random.randint(10, 15), random.randint(14, 18), (10, 20), 50, 20, "Curse", (20, 25)),
+        Enemy("Necromancer", random.randint(10, 15), random.randint(14, 18), (12, 22), 60, 22, "Summon Undead",
+              (22, 28)),
+        Enemy("Doppelganger", random.randint(10, 15), random.randint(14, 18), (15, 25), 70, 23, "Mimic", (25, 30)),
+        Enemy("Griffin", random.randint(10, 15), random.randint(14, 18), (18, 28), 80, 24, "Talon Swoop", (28, 35)),
+        Enemy("Golem", random.randint(10, 15), random.randint(14, 18), (20, 30), 90, 20, "Earth Slam", (30, 40))
+    ]
+
+    hard_monsters = [
+        Enemy("Troll", random.randint(14, 18), random.randint(6, 8), (10, 20), 50, 30, "Troll Smash", (15, 25)),
+        Enemy("Werewolf", random.randint(14, 20), random.randint(7, 9), (12, 22), 55, 32, "Savage Bite", (18, 28)),
+        Enemy("Minotaur", random.randint(16, 22), random.randint(8, 10), (14, 24), 65, 33, "Charge", (20, 30)),
+        Enemy("Giant Spider", random.randint(15, 25), random.randint(7, 11), (15, 25), 60, 34, "Venomous Bite",
+              (18, 28)),
+        Enemy("Gargoyle", random.randint(18, 28), random.randint(9, 13), (18, 28), 60, 34, "Stone Claw", (20, 30)),
+        Enemy("Wraith", random.randint(20, 30), random.randint(10, 14), (20, 30), 55, 35, "Soul Drain", (22, 32)),
+        Enemy("Ogre", random.randint(18, 28), random.randint(9, 13), (20, 30), 54, 36, "Club Smash", (20, 30))
+    ]
+    Vhard_monsters = [
+        Enemy("Dragon", 200, 30, 500, 1000, 100)
+
+    ]
+
+    locations = {
+        "Forest": "As you step into the forest, the earthy scent of moss and damp leaves fills your senses.\nSunlight filters through the dense foliage above, dappling the forest floor with patches of golden light.\nA gentle breeze rustles the leaves, creating a soothing melody that accompanies the chirping of birds and the chatter of unseen creatures.\n\nYet, amidst this tranquil scene, a sense of caution tugs at your awareness;\nyou can't shake the feeling that unseen enemies may be lurking in the shadows,\nwatching and waiting for the right moment to reveal themselves.\n\nYou find yourself surrounded by towering trees, their branches forming a canopy overhead.",
+        "Caves": "As you venture into the depths of the cave, a chill runs down your spine.\nThe faint echo of dripping water reverberates off the walls,\nadding to the eerie atmosphere.\nStalactites and stalagmites jut out from the ceiling and floor,\ncasting strange shadows in the dim light.\n\nYou tread carefully, mindful of unseen crevices and slippery rocks.\nGlimmers of precious minerals catch your eye,\nsparkling in the faint glow of your torch.\n\nYet, amidst the beauty of the cave's formations,\na sense of foreboding lingers.\nYou can't shake the feeling that something ancient and primal\nmay be lurking in the dark recesses,\nwatching and waiting for an unsuspecting intruder.\n\nYou press on, drawn deeper into the mystery\nthat lies hidden within this subterranean world.",
+        "Ruins": "As you step into the ancient ruins, a sense of awe washes over you.\nThe remnants of a once-great civilization\nlie scattered amidst crumbling stone structures.\nVines and moss reclaim the forgotten architecture,\nadding a touch of nature's persistence to the scene.\n\nYou walk among toppled columns and weathered statues,\ntracing the faded inscriptions that hint at the past glory of this place.\n\nYet, amidst the haunting beauty of decay,\nyou can't ignore the feeling of being watched.\nEyes seem to follow your every move,\nas if the spirits of the past inhabitants\nstill linger among the ruins.\n\nYou tread cautiously, respecting the silent guardians\nof this lost civilization,\naware that mysteries and dangers may lurk\nbeneath the surface of this ancient world.",
+        "Mountain Pass": "As you ascend the winding mountain pass,\nthe air grows colder and thinner,\nwhipping through your hair with icy tendrils.\nSnow-capped peaks tower above,\ncasting long shadows that stretch across the rugged terrain.\n\nYou navigate narrow pathways and treacherous cliffs,\nthe roar of distant avalanches echoing in the distance.\n\nAs you approach the summit, an ominous silhouette\nagainst the horizon comes into view:\nthe lair of the legendary dragon, the final boss of your quest.\n\nSmoke billows from its massive nostrils,\nits scales shimmering with an otherworldly glow.\nYou can feel the heat radiating from its cavernous lair,\nand the ground trembles with each beat of its colossal wings.\n\nYour heart races with anticipation and fear,\nknowing that the ultimate challenge lies ahead\nin the form of this ancient and powerful foe.",
+        "Go To Town": "You decides to go to town."
+    }
+
+    while True:
+        print(f"{player.name}, where do you want to go?")
+        for i, location in enumerate(locations.keys(), 1):
+            print(f"{i}. {location}")
+
+        choice = input("Enter the number corresponding to your chosen location: ")
+        if choice.isdigit() and 1 <= int(choice) <= len(locations):
+            location_index = int(choice) - 1
+            location_name = list(locations.keys())[location_index]
+            #play_music(location_name.lower().replace(" ", "_"))  # Lowercase with underscores
+            print(locations[location_name])
+
+            # Update music based on location
+
+            if location_name == "Forest":
+                enemy = random.choice(normal_monsters)
+            elif location_name == "Caves":
+                enemy = random.choice(medium_monsters)
+            elif location_name == "Ruins":
+                enemy = random.choice(hard_monsters)
+            elif location_name == "Mountain Pass":
+                # Special condition for Dragon enemy
+                if player.level >= 10:  # Adjust level requirement as needed
+                    enemy = Enemy("Dragon", 200, 30, 500, 1000, 100)
+                else:
+                    print("You feel a strong presence but you don't feel ready yet.")
+                    continue  # Go back to location selection
+            elif location_name == "Go To Town":
+                town_gameplay(player)
+
+        if not battle(player, enemy):
+            print(f"{player.name} was defeated.")
+        else:
+            print(f"{player.name} defeated the {enemy.name}!")
+
+        if location_name == "Mountain Pass" and enemy.name == "Dragon" and enemy.hit_points <= 0:
+            print("Congratulations! You have defeated the Dragon and completed your adventure.")
+            break
+        else:
+            print("Invalid choice. Please enter a number corresponding to the available locations.")
+
+
+def main():
+    print(r"  ________       .__               .__                ________       .___                                 ")
+    print(r" /  _____/  ____ |  | _____ _______|__| ____   ____   \_____  \    __| _/__.__. ______ ______ ____ ___.__.")
+    print(r"/   \  ___ /  _ \|  | \__  \\_  __ \  |/  _ \ /    \   /   |   \  / __ <   |  |/  ___//  ___// __ <   |  |")
+    print(r"\    \_\  (  <_> )  |__/ __ \|  | \/  (  <_> )   |  \ /    |    \/ /_/ |\___  |\___ \ \___ \\  ___/\___  |")
+    print(r" \______  /\____/|____(____  /__|  |__|\____/|___|  / \_______  /\____ |/ ____/____  >____  >\___  > ____|")
+    print(r"        \/                 \/                     \/          \/      \/\/         \/     \/     \/\/     ")
+
+    current_state = "character_creation"  # Initial state
+
+    # Play music for character creation
+    #play_music(current_state)
+
+    num_players = int(input("Enter the number of players in your team: "))
+    players = []
+    for i in range(num_players):
+        name = input(f"Enter name for Player {i + 1}: ")
+        print(f"Welcome, {name}!")
+
+        # Display available classes dynamically
+        print("Available classes:")
+        for key, value in pathfinder_classes.items():
+            class_name = value.get('name', 'Unknown Class')
+            print(f"{key}. {class_name}")
+
+        while True:
+            class_choice = input(f"Choose a class for {name} (enter the corresponding number): ")
+            if class_choice.isdigit():
+                class_choice = int(class_choice)
+                if class_choice in pathfinder_classes:
+                    print(f"{name} has chosen the {pathfinder_classes[class_choice]['name']} class!")
+                    break
+            print("Invalid input! Please choose a valid class number.")
+
+        print("Available races:")
+        for index, race in enumerate(available_races, 1):
+            print(f"{index}. {race}")
+
+        while True:
+            race_choice = input("Choose a race: ")
+            if race_choice.isdigit():
+                race_choice = int(race_choice)
+                if 1 <= race_choice <= len(available_races):
+                    race = available_races[race_choice - 1]
+                    print(f"You have chosen the {race} race!")
+                    break
+            print("Invalid input! Please choose a valid race number.")
+
+        level = 1
+        hit_points = 25
+        max_hit_points = 25
+        mp = 30
+        max_mp = 30
+        stamina = 30
+        max_stamina = 30
+        weapon = 0
+        armor = 0
+        gold = 20
+        items = []
+        class_id = class_choice
+        stats = pathfinder_classes[class_choice]
+        starting_weapon_id = stats["starting_weapon"]
+        starting_armor_type = stats["starting_armor"]
+        starting_weapon = weapons[starting_weapon_id]
+        starting_armor = armor_types[starting_armor_type]
+        player = Player(name, class_choice, race, level, hit_points, max_hit_points, mp, max_mp, stamina, max_stamina,
+                        starting_weapon, starting_armor, gold, items)
+        players.append(player)
+
+    for player in players:
+        visit_shop(player)
+
+    for player in players:
+        adventure_gameplay(player)
+
+    current_state = "town"  # Initial state
+    #play_music(current_state)
+
+    # Simulated game events for state transitions
+    entering_map = True  # Simulated entering map event
+    entering_forest = False  # Simulated entering map event
+    entering_caves = False
+    entering_ruins = False  # Simulated entering map event
+    entering_mountain_pass = False
+    # Update state based on game events
+    if entering_map:
+        current_state = "map"
+    elif entering_forest:
+        current_state = "forest"
+    elif entering_caves:
+        current_state = "caves"
+    elif entering_ruins:
+        current_state = "ruins"
+    elif entering_mountain_pass:
+        current_state = "mountain pass"
+    # Play music based on current state
+    #play_music(current_state)
+
+
+if __name__ == "__main__":
+    main()
+pygame.quit()
